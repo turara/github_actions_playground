@@ -14,11 +14,24 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - name: Echo inputs dev
+      - name: Export webhook url
         if: github.event.inputs.env == 'dev'
         run: |
-          echo "env is ${{ github.event.inputs.env }}"
-      - name: Echo inputs beta
+          echo WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_DEV_URL }} >> $GITHUB_ENV
+      - name: Export webhook url
         if: github.event.inputs.env == 'beta'
         run: |
-          echo "env is ${{ github.event.inputs.env }}"
+          echo WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_BETA_URL }} >> $GITHUB_ENV
+      - name: Slack notification
+        uses: lazy-actions/slatify@master
+        with:
+          type: ${{ job.status }}
+          job_name: "*change env*"
+          channel: "#notifications-${{ github.event.inputs.env }}"
+          commit: true
+          icon_emoji: ":rocket:"
+          username: "change env bot"
+          mention: "channel"
+          mention_if: "failure"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          url: ${{ env.WEBHOOK_URL }}
