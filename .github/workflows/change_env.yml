@@ -1,0 +1,24 @@
+name: change env
+
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        description: "Input environment dev/beta/prod. Default value is dev."
+        required: false
+        default: "dev"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Echo inputs dev
+        if: github.event.inputs.env == 'dev'
+        run: |
+          echo "env is ${{ github.event.inputs.env }}"
+      - name: Echo inputs beta
+        if: github.event.inputs.env == 'beta'
+        run: |
+          echo "env is ${{ github.event.inputs.env }}"
