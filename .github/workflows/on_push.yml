@@ -17,11 +17,11 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - name: Export webhook url
+      - name: echo inputs.env if dev
         if: github.event.inputs.env == 'dev'
         run: |
           echo WEBHOOK_URL=${{ github.event.inputs.env }}
-      - name: Export webhook url
+      - name: echo message on push
         if: github.event.inputs.env != 'dev'
         run: |
           echo "Triggered on push"
