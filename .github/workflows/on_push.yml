@@ -7,6 +7,9 @@ on:
         description: "Workflow dispatch env"
         required: false
         default: "dev"
+  push:
+    branches:
+      - on_push_test
 
 jobs:
   build:
@@ -18,3 +21,7 @@ jobs:
         if: github.event.inputs.env == 'dev'
         run: |
           echo WEBHOOK_URL=${{ github.event.inputs.env }}
+      - name: Export webhook url
+        if: github.event.inputs.env != 'dev'
+        run: |
+          echo "Triggered on push"
