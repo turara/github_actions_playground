@@ -9,7 +9,7 @@ on:
         default: "dev"
   push:
     branches:
-      - on_push_test
+      - on-push-test
 
 jobs:
   build:
