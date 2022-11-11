@@ -24,4 +24,4 @@ jobs:
       - name: echo message on push
         if: github.event.inputs.env != 'dev'
         run: |
-          echo "Triggered on push"
+          echo "Triggered on push changed"
