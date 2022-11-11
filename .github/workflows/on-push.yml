@@ -1,0 +1,23 @@
+name: on push
+
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        description: "Workflow dispatch env"
+        required: false
+        default: "dev"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: echo inputs.env if dev
+        if: github.event.inputs.env == 'dev'
+        run: |
+          echo WEBHOOK_URL=${{ github.event.inputs.env }}
+      - name: echo message
+        run: |
+          echo "Triggered somehow"
