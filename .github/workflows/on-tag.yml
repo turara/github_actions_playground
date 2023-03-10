@@ -19,7 +19,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.inputs.env || github.ref_name }}
+          ref: release
       - name: cat version file
         run: |
           cat VERSION
