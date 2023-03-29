@@ -49,13 +49,15 @@ jobs:
         run: |
           git config --local user.email "playground@turara.com"
           git config --local user.name "turara"
-      - name: Bump version
+      - name: Bump version / Move tag
         run: |
           echo "Bump version"
           sed -i "s/^version.*/version: $VERSION/g" ./pubspec.yaml
           git checkout -b releases/v$VERSION
           git add pubspec.yaml
           git commit -m "Bump version to $VERSION"
+          git tag --force v$VERSION
+          git push origin v$VERSION --force
         env:
           VERSION: ${{ steps.vars.outputs.tag }}
       - name: Create PR
