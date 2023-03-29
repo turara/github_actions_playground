@@ -45,3 +45,23 @@ jobs:
         run: |
           echo $RELEASE_VERSION
           echo ${{ steps.vars.outputs.tag }}
+      - name: git setting
+        run: |
+          git config --local user.email "playground@turara.com"
+          git config --local user.name "turara"
+      - name: Bump version
+        run: |
+          echo "Bump version"
+          sed -i "s/^version.*/version: $VERSION/g" ./pubspec.yaml
+          git checkout -b releases/v$VERSION
+          git add pubspec.yaml
+          git commit -m "Bump version to $VERSION"
+        env:
+          VERSION: ${{ steps.vars.outputs.tag }}
+      - name: Create PR
+        run: |
+          git push --set-upstream origin releases/v$VERSION
+          gh pr create --title "Bump version to $VERSION" --body "Bump version to $VERSION" --base release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.vars.outputs.tag }}
