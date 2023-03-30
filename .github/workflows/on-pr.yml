@@ -1,0 +1,27 @@
+name: On PR
+on:
+  pull_request:
+    types:
+      - opened
+    branches:
+      - release
+
+jobs:
+  release-note:
+    if: startsWith(github.head_ref, 'releases/v') && github.event.pull_request.draft == false
+    name: release note
+    runs-on: ubuntu-latest
+    steps:
+      # - uses: actions/checkout@v3
+      - name: Set output
+        id: vars
+        run: |
+          echo "version=${BRANCH#releases/v}" >> $GITHUB_OUTPUT
+        env:
+          BRANCH: ${{ github.head_ref }}
+      - uses: ncipollo/release-action@v1.12.0
+        with:
+          name: Release ${{ steps.vars.outputs.version }}
+          draft: true
+          generateReleaseNotes: true
+          # token: ${{ secrets.TURARA_PAT }}
