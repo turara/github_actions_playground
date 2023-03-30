@@ -8,6 +8,18 @@ on:
       - release
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test
+        run: |
+          echo $BRANCH
+          echo $DRAFT
+          echo $IS_DRAFT
+        env:
+          BRANCH: ${{ github.head_ref }}
+          DRAFT: ${{ github.event.pull_request.draft }}
+          IS_DRAFT: ${{ github.event.pull_request.draft == false }}
   release-note:
     if: startsWith(github.head_ref, 'releases/v') && github.event.pull_request.draft == false
     name: release note
