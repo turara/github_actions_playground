@@ -1,4 +1,4 @@
-name: On PR
+name: on pr
 on:
   pull_request:
     types:
