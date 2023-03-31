@@ -2,17 +2,28 @@ name: on pr
 on:
   pull_request:
     types:
-      - opened
+      - closed
     branches:
       - release
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test
+        run: |
+          echo $BRANCH
+          echo $IS_DRAFT
+        env:
+          BRANCH: ${{ github.head_ref }}
+          IS_DRAFT: ${{ github.event.pull_request.draft == true }}
+          MERGED: ${{ github.event.pull_request.merged == true }}
   release-note:
-    if: startsWith(github.head_ref, 'releases/v') && github.event.pull_request.draft == false
+    if: startsWith(github.head_ref, 'releases/v') && github.event.pull_request.merged == true
     name: release note
     runs-on: ubuntu-latest
     steps:
-      # - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
       - name: Set output
         id: vars
         run: |
@@ -21,6 +32,7 @@ jobs:
           BRANCH: ${{ github.head_ref }}
       - uses: ncipollo/release-action@v1.12.0
         with:
+          tag: v${{ steps.vars.outputs.version }}
           name: Release ${{ steps.vars.outputs.version }}
           draft: true
           generateReleaseNotes: true
