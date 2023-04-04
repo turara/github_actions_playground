@@ -1,0 +1,27 @@
+name: on pr
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test
+        run: |
+          echo $BRANCH
+          echo $IS_DRAFT
+          echo ${{ github.event.pull_request.user.login}}
+        env:
+          BRANCH: ${{ github.head_ref }}
+          IS_DRAFT: ${{ github.event.pull_request.draft == true }}
+          MERGED: ${{ github.event.pull_request.merged == true }}
+
+  test-if:
+    if: github.event.pull_request.user.login == 'turara'
+    name: Test if
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Hello, ${{ github.event.pull_request.user.login}}!"
