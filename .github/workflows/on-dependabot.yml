@@ -4,6 +4,7 @@ on:
     types:
       - opened
       - reopened
+      - synchronize
 
 jobs:
   test:
@@ -25,3 +26,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "Hello, ${{ github.event.pull_request.user.login}}!"
+
+  test-if-commit:
+    if: github.event.pull_request.user.login == 'turara'
+    name: Test if
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get latest committer
+        run: echo "The latest committer is ${{ github.event.pull_request.head.user.login }}"
