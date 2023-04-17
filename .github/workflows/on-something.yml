@@ -1,0 +1,14 @@
+name: on something
+on:
+  push:
+    tags:
+      - something**
+
+jobs:
+  only-tags:
+    if: startsWith(github.ref, 'refs/tags/something')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: echo tag name
+        run: echo ${{ github.ref }}
