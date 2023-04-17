@@ -1,13 +1,33 @@
-// import { Octokit } from '@octokit/rest'
-
+// const { Octokit } = require('@octokit/rest')
 // const github = new Octokit({
 //   auth: process.env.TURARA_PAT,
 // })
-
-// const owner = 'turara'
-// const repo = 'github_actions_playground'
-
-// const tagPrefix = 'v'
+// ;(async () => {
+//   const owner = 'turara'
+//   const repo = 'github_actions_playground'
+//   const context = undefined
+//   const TAG_PREFIX = 'v'
+//   const VERSION = '1.0.15'
+//   const tagName = `${TAG_PREFIX}${VERSION}`
+//   const latestPublishedRelease = await getLatestPublishedRelease(
+//     github,
+//     context,
+//     TAG_PREFIX,
+//     owner,
+//     repo
+//   )
+//   const previousTagName =
+//     latestPublishedRelease?.tag_name ?? `${TAG_PREFIX}0.0.1`
+//   const releaseNotes = await generateReleaseNotes(
+//     github,
+//     context,
+//     tagName,
+//     previousTagName,
+//     owner,
+//     repo
+//   )
+//   await generateRelease(github, context, tagName, releaseNotes, owner, repo)
+// })()
 
 const getLatestPublishedRelease = async (
   github,
@@ -43,19 +63,31 @@ const generateReleaseNotes = async (
   owner = undefined,
   repo = undefined
 ) => {
-  const response = await github.request(
-    `POST /repos/{owner}/{repo}/releases/generate-notes`,
-    {
-      owner: context?.repo.owner ?? owner,
-      repo: context?.repo.repo ?? repo,
-      tag_name: tagName,
-      previous_tag_name: previousTagName,
-      headers: {
-        'X-GitHub-Api-Version': '2022-11-28',
-      },
-    }
-  )
+  const response = await github.rest.repos.generateReleaseNotes({
+    owner: context?.repo.owner ?? owner,
+    repo: context?.repo.repo ?? repo,
+    tag_name: tagName,
+    previous_tag_name: previousTagName,
+  })
   return response.data.body
+}
+
+const generateRelease = async (
+  github,
+  context,
+  tagName,
+  body,
+  owner = undefined,
+  repo = undefined
+) => {
+  await github.rest.repos.createRelease({
+    owner: context?.repo.owner ?? owner,
+    repo: context?.repo.repo ?? repo,
+    tag_name: tagName,
+    name: `Release ${tagName}`,
+    body,
+    draft: true,
+  })
 }
 
 module.exports = async ({ github, context, core }) => {
@@ -74,5 +106,6 @@ module.exports = async ({ github, context, core }) => {
     tagName,
     previousTagName
   )
-  core.exportVariable('releaseNotes', releaseNotes)
+  await generateRelease(github, context, tagName, releaseNotes)
+  // core.exportVariable('releaseNotes', releaseNotes)
 }
