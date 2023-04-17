@@ -3,8 +3,8 @@ on:
   pull_request:
     types:
       - closed
-    branches:
-      - release
+    # branches:
+    #   - release
 
 jobs:
   test:
@@ -20,7 +20,8 @@ jobs:
           MERGED: ${{ github.event.pull_request.merged == true }}
 
   create-release-note:
-    if: startsWith(github.head_ref, 'releases/v') && github.event.pull_request.merged == false
+    # if: startsWith(github.head_ref, 'releases/v') && github.event.pull_request.merged == false
+    if: github.event.pull_request.merged == false
     name: create release note
     runs-on: ubuntu-latest
     steps:
