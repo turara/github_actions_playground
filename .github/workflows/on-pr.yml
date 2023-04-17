@@ -36,6 +36,8 @@ jobs:
         id: generateReleaseNotes
         env:
           PAT: '${{ secrets.TURARA_PAT }}'
+          TAG_PREFIX: v
+          VERSION: ${{ steps.vars.outputs.version }}
         with:
           script: |
             const script = require('./octokit_playground/scripts/generateRelease.js')

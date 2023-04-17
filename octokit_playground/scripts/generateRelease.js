@@ -66,7 +66,8 @@ module.exports = async ({ github, context, core }) => {
     context,
     TAG_PREFIX
   )
-  const previousTagName = latestPublishedRelease?.tag_name
+  const previousTagName =
+    latestPublishedRelease?.tag_name ?? `${TAG_PREFIX}0.0.1`
   const releaseNotes = await generateReleaseNotes(
     github,
     context,
