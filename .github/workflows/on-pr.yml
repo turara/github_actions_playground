@@ -35,7 +35,7 @@ jobs:
         env:
           BRANCH: ${{ github.head_ref }}
       - uses: actions/github-script@v6
-        id: generateReleaseNotes
+        id: generateRelease
         env:
           VERSION: ${{ steps.vars.outputs.version }}
         with:
@@ -47,10 +47,3 @@ jobs:
           echo $RELEASE_NOTE
         env:
           RELEASE_NOTE: ${{ steps.generateReleaseNotes.outputs.releaseNotes }}
-      - uses: ncipollo/release-action@v1.12.0
-        with:
-          tag: v${{ steps.vars.outputs.version }}
-          name: Release ${{ steps.vars.outputs.version }}
-          draft: true
-          body: ${{ steps.generateReleaseNotes.outputs.releaseNotes }}
-          # token: ${{ secrets.TURARA_PAT }}
