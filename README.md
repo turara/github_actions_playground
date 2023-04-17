@@ -13,3 +13,5 @@
 ## Test if sync again
 
 ## Test if on tag named something\*\*
+
+## Test script
