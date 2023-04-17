@@ -38,7 +38,7 @@ jobs:
           PAT: '${{ secrets.TURARA_PAT }}'
         with:
           script: |
-            const script = require('./octokit_playground/scripts/generateRelease.mjs')
+            const script = require('./octokit_playground/scripts/generateRelease.js')
             await script({ github, context, core })
       - name: Test
         run: |
