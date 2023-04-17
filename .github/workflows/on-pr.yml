@@ -3,8 +3,11 @@ on:
   pull_request:
     types:
       - closed
-    # branches:
-    #   - release
+    branches:
+      - release
+
+env:
+  TAG_PREFIX: 'v'
 
 jobs:
   test:
@@ -19,35 +22,6 @@ jobs:
           IS_DRAFT: ${{ github.event.pull_request.draft == true }}
           MERGED: ${{ github.event.pull_request.merged == true }}
 
-  create-release-note:
-    # if: startsWith(github.head_ref, 'releases/v') && github.event.pull_request.merged == false
-    if: github.event.pull_request.merged == false
-    name: create release note
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set output
-        id: vars
-        run: |
-          echo "version=${BRANCH#releases/v}" >> $GITHUB_OUTPUT
-        env:
-          BRANCH: ${{ github.head_ref }}
-      - uses: actions/github-script@v6
-        id: generateReleaseNotes
-        env:
-          PAT: '${{ secrets.TURARA_PAT }}'
-          TAG_PREFIX: v
-          VERSION: ${{ steps.vars.outputs.version }}
-        with:
-          script: |
-            const script = require('./octokit_playground/scripts/generateRelease.js')
-            await script({ github, context, core })
-      - name: Test
-        run: |
-          echo $RELEASE_NOTE
-        env:
-          RELEASE_NOTE: ${{ steps.generateReleaseNotes.outputs.releaseNotes }}
-
   release-note:
     if: startsWith(github.head_ref, 'releases/v') && github.event.pull_request.merged == true
     name: release note
@@ -60,10 +34,23 @@ jobs:
           echo "version=${BRANCH#releases/v}" >> $GITHUB_OUTPUT
         env:
           BRANCH: ${{ github.head_ref }}
+      - uses: actions/github-script@v6
+        id: generateReleaseNotes
+        env:
+          VERSION: ${{ steps.vars.outputs.version }}
+        with:
+          script: |
+            const script = require('./octokit_playground/scripts/generateRelease.js')
+            await script({ github, context, core })
+      - name: Test
+        run: |
+          echo $RELEASE_NOTE
+        env:
+          RELEASE_NOTE: ${{ steps.generateReleaseNotes.outputs.releaseNotes }}
       - uses: ncipollo/release-action@v1.12.0
         with:
           tag: v${{ steps.vars.outputs.version }}
           name: Release ${{ steps.vars.outputs.version }}
           draft: true
-          generateReleaseNotes: true
+          body: ${{ steps.generateReleaseNotes.outputs.releaseNotes }}
           # token: ${{ secrets.TURARA_PAT }}
