@@ -31,6 +31,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
       - id: vars
         run: |
           pubspec_version=$(egrep -o 'version: [0-9.]+' pubspec.yaml | awk '{print $2}')
@@ -59,7 +61,7 @@ jobs:
         run: |
           echo "Bump version"
           sed -i "s/^version.*/version: $BRANCH_VERSION/g" ./pubspec.yaml
-          git checkout -b chore/bump-version origin/$RELEASES_V_BRANCH
+          git checkout -b chore/bump-version-$BRANCH_VERSION
           git add pubspec.yaml
           git commit -m "Bump version to $VEBRANCH_VERSION"
         env:
@@ -67,7 +69,7 @@ jobs:
           RELEASES_V_BRANCH: ${{ github.head_ref }}
       - name: Create PR and comment
         run: |
-          git push --set-upstream origin chore/bump-version
+          git push --set-upstream origin chore/bump-version-$BRANCH_VERSION
           gh pr create --title "Bump version to $BRANCH_VERSION" --body "Bump version to $BRANCH_VERSION" --base $RELEASES_V_BRANCH
           ISSUE_NUMBER=$(gh pr list --limit 1 | awk '{print $1}')
           echo -e "❗️ Version on pubspec.yaml \`$PUBSPEC_VERSION\` is not match with branch name!\n👹 Please merge PR #$ISSUE_NUMBER to bump version to $BRANCH_VERSION." > msg
