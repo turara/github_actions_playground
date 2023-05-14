@@ -2,9 +2,12 @@ name: on pr
 on:
   pull_request:
     types:
+      - opened
+      - synchronize
       - closed
     branches:
       - release
+      - releases/v*
 
 env:
   TAG_PREFIX: 'v'
@@ -21,6 +24,30 @@ jobs:
           BRANCH: ${{ github.head_ref }}
           IS_DRAFT: ${{ github.event.pull_request.draft == true }}
           MERGED: ${{ github.event.pull_request.merged == true }}
+
+  check-version:
+    if: startsWith(github.head_ref, 'releases/v') && github.event_name == 'pull_request' && github.event.action == 'opened' || github.event.action == 'synchronize'
+    name: check version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - id: vars
+        run: |
+          pubspec_version=$(egrep -o 'version: [0-9.]+' pubspec.yaml | awk '{print $2}')
+          echo "pubspec_version=$pubspec_version" >> $GITHUB_OUTPUT
+          echo "branch_version=${BRANCH#releases/v}" >> $GITHUB_OUTPUT
+        env:
+          BRANCH: ${{ github.head_ref }}
+      - name: Check vresion
+        run: |
+          if [[ "$BRANCH_VERSION" != "$PUBSPEC_VERSION" ]]; then
+            echo "Versions not match!"
+          fi
+          echo $BRANCH_VERSION
+          echo $PUBSPEC_VERSION
+        env:
+          BRANCH_VERSION: ${{ steps.vars.outputs.branch_version }}
+          PUBSPEC_VERSION: ${{ steps.vars.outputs.pubspec_version }}
 
   release-note:
     if: startsWith(github.head_ref, 'releases/v') && github.event.pull_request.merged == true
