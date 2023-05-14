@@ -42,11 +42,15 @@ jobs:
           RELEASES_V_BRANCH: ${{ github.head_ref }}
       - id: check_version
         run: |
+          NEED_UPDATE_VERSION=false
           if [[ "$BRANCH_VERSION" != "$PUBSPEC_VERSION" ]]; then
-            echo "need_update_version=true" >> $GITHUB_OUTPUT
-          else
-            echo "need_update_version=false" >> $GITHUB_OUTPUT
+            count=$(gh pr list --state open --search "'Bump version to $BRANCH_VERSION' in:title" | wc -l)
+            echo $count
+            if [ $count -eq 0 ]; then
+              NEED_UPDATE_VERSION=true
+            fi
           fi
+          echo "need_update_version=$NEED_UPDATE_VERSION" >> $GITHUB_OUTPUT
         env:
           BRANCH_VERSION: ${{ steps.vars.outputs.branch_version }}
           PUBSPEC_VERSION: ${{ steps.vars.outputs.pubspec_version }}
