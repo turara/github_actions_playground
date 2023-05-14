@@ -41,11 +41,8 @@ jobs:
       - name: Check version
         run: |
           if [[ "$BRANCH_VERSION" != "$PUBSPEC_VERSION" ]]; then
-            echo "Versions not match!"
-            gh pr comment -b "👹 Version on pubspec.yaml :$PUBSPEC_VERSION is not match with branch name!"
+            gh pr comment ${{ github.event.pull_request.number }} -b "👹 Version on pubspec.yaml `$PUBSPEC_VERSION` is not match with branch name!"
           fi
-          echo $BRANCH_VERSION
-          echo $PUBSPEC_VERSION
         env:
           BRANCH_VERSION: ${{ steps.vars.outputs.branch_version }}
           PUBSPEC_VERSION: ${{ steps.vars.outputs.pubspec_version }}
