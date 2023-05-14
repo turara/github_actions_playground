@@ -41,7 +41,7 @@ jobs:
       - name: Check version
         run: |
           if [[ "$BRANCH_VERSION" != "$PUBSPEC_VERSION" ]]; then
-            echo -e "👹 Version on pubspec.yaml \`$PUBSPEC_VERSION\` is not match with branch name!\nPlease update pubspec.yaml version to \`$BRANCH_VERSION\` ." > msg
+            echo -e "❗️ Version on pubspec.yaml \`$PUBSPEC_VERSION\` is not match with branch name!\n👹 Please update pubspec.yaml version to \`$BRANCH_VERSION\`." > msg
             export msg=$(cat msg)
             gh pr comment ${{ github.event.pull_request.number }} -b "$msg"
           fi
