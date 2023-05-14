@@ -59,7 +59,7 @@ jobs:
         run: |
           echo "Bump version"
           sed -i "s/^version.*/version: $BRANCH_VERSION/g" ./pubspec.yaml
-          git checkout -b chore/bump-version $RELEASES_V_BRANCH
+          git checkout -b chore/bump-version origin/$RELEASES_V_BRANCH
           git add pubspec.yaml
           git commit -m "Bump version to $VEBRANCH_VERSION"
         env:
@@ -76,6 +76,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH_VERSION: ${{ steps.vars.outputs.branch_version }}
+          PUBSPEC_VERSION: ${{ steps.vars.outputs.pubspec_version }}
           RELEASES_V_BRANCH: ${{ github.head_ref }}
 
   release-note:
