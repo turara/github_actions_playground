@@ -49,8 +49,6 @@ jobs:
             git fetch origin $BUMP_VERSION_BRANCH >/dev/null 2>&1
             if ! git branch -r | grep -q "origin/$BUMP_VERSION_BRANCH"; then
               NEED_UPDATE_VERSION=true
-            else
-              echo "Already exists origin/$BUMP_VERSION_BRANCH"
             fi
           fi
           echo "need_update_version=$NEED_UPDATE_VERSION" >> $GITHUB_OUTPUT
