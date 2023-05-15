@@ -45,9 +45,10 @@ jobs:
         run: |
           NEED_UPDATE_VERSION=false
           if [[ "$BRANCH_VERSION" != "$PUBSPEC_VERSION" ]]; then
-            BUMP_VERSION_BRANCH="chore/bump-version-$BRANCH_VERSION"
-            git fetch origin $BUMP_VERSION_BRANCH >/dev/null 2>&1
-            if ! git branch -r | grep -q "origin/$BUMP_VERSION_BRANCH"; then
+            echo "gh api repos/$GITHUB_REPOSITORY/branches/main 2> /dev/null | grep "Branch not found"
+            branch_not_exist=$(gh api repos/$GITHUB_REPOSITORY/branches/main 2> /dev/null | grep "Branch not found")
+            echo $branch_not_exist
+            if [ -n $branch_not_exist ]; then
               NEED_UPDATE_VERSION=true
             fi
           fi
