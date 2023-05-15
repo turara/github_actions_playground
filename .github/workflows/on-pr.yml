@@ -40,14 +40,15 @@ jobs:
           echo "branch_version=${RELEASES_V_BRANCH#releases/v}" >> $GITHUB_OUTPUT
         env:
           RELEASES_V_BRANCH: ${{ github.head_ref }}
-      - name: Check version and PR
+      - name: Check version and remote branch
         id: check_version
         run: |
           NEED_UPDATE_VERSION=false
           if [[ "$BRANCH_VERSION" != "$PUBSPEC_VERSION" ]]; then
-            count=$(gh pr list --state open --search "'Bump version to $BRANCH_VERSION' in:title" | wc -l)
-            if [ $count -eq 0 ]; then
+            if ! git branch -r | grep -q "chore/bump-version-$BRANCH_VERSION"; then
               NEED_UPDATE_VERSION=true
+            else
+              echo 'Already exists chore/bump-version-$BRANCH_VERSION'
             fi
           fi
           echo "need_update_version=$NEED_UPDATE_VERSION" >> $GITHUB_OUTPUT
