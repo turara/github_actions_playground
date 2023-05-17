@@ -51,7 +51,7 @@ jobs:
             echo After grep
             branch_not_exist=$(gh api repos/$GITHUB_REPOSITORY/branches/$BUMP_BRANCH 2> /dev/null | grep "Branch not found" || echo "")
             echo $branch_not_exist
-            if [ -n $branch_not_exist ]; then
+            if [ -n "$branch_not_exist" ]; then
               NEED_UPDATE_VERSION=true
             fi
           fi
