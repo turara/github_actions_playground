@@ -46,8 +46,9 @@ jobs:
           NEED_UPDATE_VERSION=false
           if [[ "$BRANCH_VERSION" != "$PUBSPEC_VERSION" ]]; then
             echo $GITHUB_REPOSITORY
-            echo 'gh api repos/${GITHUB_REPOSITORY}/branches/main 2> /dev/null | grep "Branch not found"'
-            branch_not_exist=$(gh api repos/${GITHUB_REPOSITORY}/branches/main 2> /dev/null | grep "Branch not found" || echo "")
+            gh api repos/$GITHUB_REPOSITORY/branches/$BUMP_BRANCH 2> /dev/null | grep "Branch not found"
+            echo After grep
+            branch_not_exist=$(gh api repos/$GITHUB_REPOSITORY/branches/$BUMP_BRANCH 2> /dev/null | grep "Branch not found" || echo "")
             echo $branch_not_exist
             if [ -n $branch_not_exist ]; then
               NEED_UPDATE_VERSION=true
@@ -58,6 +59,7 @@ jobs:
           BRANCH_VERSION: ${{ steps.vars.outputs.branch_version }}
           PUBSPEC_VERSION: ${{ steps.vars.outputs.pubspec_version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BUMP_BRANCH: chore/bump-version-${{ steps.vars.outputs.branch_version }}
       - name: git setting
         if: ${{ steps.check_version.outputs.need_update_version == 'true' }}
         run: |
@@ -68,16 +70,17 @@ jobs:
         run: |
           echo "Bump version"
           sed -i "s/^version.*/version: $BRANCH_VERSION/g" ./pubspec.yaml
-          git checkout -b chore/bump-version-$BRANCH_VERSION
+          git checkout -b $BUMP_BRANCH
           git add pubspec.yaml
           git commit -m "Bump version to $VEBRANCH_VERSION"
         env:
           BRANCH_VERSION: ${{ steps.vars.outputs.branch_version }}
           RELEASES_V_BRANCH: ${{ github.head_ref }}
+          BUMP_BRANCH: chore/bump-version-${{ steps.vars.outputs.branch_version }}
       - name: Create PR and comment
         if: ${{ steps.check_version.outputs.need_update_version == 'true' }}
         run: |
-          git push --set-upstream origin chore/bump-version-$BRANCH_VERSION
+          git push --set-upstream origin $BUMP_BRANCH
           gh pr create --title "Bump version to $BRANCH_VERSION" --body "Bump version to $BRANCH_VERSION" --base $RELEASES_V_BRANCH
           ISSUE_NUMBER=$(gh pr list --limit 1 | awk '{print $1}')
           echo -e "❗️ Version on pubspec.yaml \`$PUBSPEC_VERSION\` is not match with branch name!\n👹 Please merge PR #$ISSUE_NUMBER to bump version to $BRANCH_VERSION." > msg
@@ -88,6 +91,7 @@ jobs:
           BRANCH_VERSION: ${{ steps.vars.outputs.branch_version }}
           PUBSPEC_VERSION: ${{ steps.vars.outputs.pubspec_version }}
           RELEASES_V_BRANCH: ${{ github.head_ref }}
+          BUMP_BRANCH: chore/bump-version-${{ steps.vars.outputs.branch_version }}
 
   release-note:
     if: startsWith(github.head_ref, 'releases/v') && github.event.pull_request.merged == true
