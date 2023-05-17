@@ -46,7 +46,8 @@ jobs:
           NEED_UPDATE_VERSION=false
           if [[ "$BRANCH_VERSION" != "$PUBSPEC_VERSION" ]]; then
             echo $GITHUB_REPOSITORY
-            gh api repos/$GITHUB_REPOSITORY/branches/$BUMP_BRANCH 2> /dev/null | grep "Branch not found"
+            echo $BUMP_BRANCH
+            gh api repos/$GITHUB_REPOSITORY/branches/$BUMP_BRANCH 2> /dev/null | grep "Branch not found" || echo "Branch exists"
             echo After grep
             branch_not_exist=$(gh api repos/$GITHUB_REPOSITORY/branches/$BUMP_BRANCH 2> /dev/null | grep "Branch not found" || echo "")
             echo $branch_not_exist
