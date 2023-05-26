@@ -1,3 +1,11 @@
+outputs:
+  commit-link:
+    description: 'Commit link'
+    value: ${{ steps.triggered_by_pull_request_merged.outputs.commit-link || steps.triggered_by_pull_request_not_merged.outputs.commit-link || steps.triggered_by_workflow_dispatch.outputs.commit-link }}
+  commit-message:
+    description: 'Commit message'
+    value: ${{ steps.triggered_by_pull_request_merged.outputs.commit-message || steps.triggered_by_pull_request_not_merged.outputs.commit-message || steps.triggered_by_workflow_dispatch.outputs.commit-message }}
+
 runs:
   using: composite
   steps:
@@ -33,8 +41,6 @@ runs:
         COMMIT_HASH=${SHA:0:7}
         echo "commit-link=${COMMIT_LINK}" >> $GITHUB_OUTPUT
         echo "commit-message=${COMMIT_MESSAGE} (${COMMIT_HASH})" >> $GITHUB_OUTPUT
-        echo "commit-link=${COMMIT_LINK}"
-        echo "commit-message=${COMMIT_MESSAGE}"
 
     # When action is triggered by workflow dispatch
     - name: triggered_by_workflow_dispatch
