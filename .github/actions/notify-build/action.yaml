@@ -19,9 +19,9 @@ runs:
         echo ---------------
         echo pull_request.html_url: ${{ github.event.pull_request.html_url }}
         echo ---------------
-        echo '${{ toJson(github.event.head_commit) }}'
-        echo head_commit.url: ${{ github.event.head_commit.url }}
-        echo head_commit.message: ${{ github.event.head_commit.message }}
+        echo '${{ toJson(github.event.pull_request.head) }}'
+        echo pull_request.head.merge_commit_message ${{ github.event.head.pull_request.merge_commit_message}}
+        echo pull_request.head.merge_commit_title ${{ github.event.head.pull_request.merge_commit_title}}
     # - id: notify-build-vars
     #   run: |
     #     COMMIT_MESSAGE=$(git log --format=%B -n 1 ${{ github.event.pull_request.head.sha }})
