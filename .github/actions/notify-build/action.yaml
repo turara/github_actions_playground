@@ -46,6 +46,18 @@ runs:
         echo "commit-link=${COMMIT_LINK}" >> $GITHUB_OUTPUT
         echo "commit-message=${COMMIT_MESSAGE} (${COMMIT_HASH})" >> $GITHUB_OUTPUT
 
+    - id: notify-build-vars-workflow-dispatch
+      if: github.event_name == 'workflow_dispatch'
+      shell: bash
+      run: |
+        echo notify-build-vars-workflow_dispatch
+        COMMIT_LINK=${{ github.event.repository.html_url }}/commits/${{ github.sha }}
+        COMMIT_MESSAGE=$(git log --format=%B -n 1 ${{ github.sha }})
+        SHA=${{ github.sha }}
+        COMMIT_HASH=${SHA:0:7}
+        echo "commit-link=${COMMIT_LINK}" >> $GITHUB_OUTPUT
+        echo "commit-message=${COMMIT_MESSAGE} (${COMMIT_HASH})" >> $GITHUB_OUTPUT
+
     - name: Send notification
       uses: slackapi/slack-github-action@v1.24.0
       env:
