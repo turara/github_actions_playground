@@ -54,3 +54,11 @@ runs:
         COMMIT_HASH=${SHA:0:7}
         echo "commit-link=${COMMIT_LINK}" >> $GITHUB_OUTPUT
         echo "commit-message=${COMMIT_MESSAGE} (${COMMIT_HASH})" >> $GITHUB_OUTPUT
+
+    - name: Output
+      run: |
+        echo commit-link from not merged is ${{ steps.triggered-by-pull-request-not-merged.outputs.commit-link }}
+        echo commit-message from not merged is ${{ steps.triggered-by-pull-request-not-merged.outputs.commit-message }}
+        echo commit-link is ${{ steps.triggered-by-pull-request-merged.outputs.commit-link || steps.triggered-by-pull-request-not-merged.outputs.commit-link || steps.triggered-by-workflow-dispatch.outputs.commit-link }}
+        echo commit-message is ${{ steps.triggered-by-pull-request-merged.outputs.commit-message || steps.triggered-by-pull-request-not-merged.outputs.commit-message || steps.triggered-by-workflow-dispatch.outputs.commit-message }}
+      shell: bash
