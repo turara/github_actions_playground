@@ -12,10 +12,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Dump GitHub Event
-      shell: bash
-      run: |
-        echo '${{ toJson(github.event) }}'
     - id: notify-build-vars-pull-request-merged
       if: github.event.pull_request.merged == true
       shell: bash
