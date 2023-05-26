@@ -5,6 +5,9 @@ inputs:
   build-number:
     description: 'Build number'
     required: true
+  webhook-url:
+    description: 'Slack webhook URL'
+    required: true
 
 runs:
   using: composite
@@ -13,59 +16,59 @@ runs:
       uses: slackapi/slack-github-action@v1.24.0
       env:
         SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_DEV_URL }}
+        SLACK_WEBHOOK_URL: ${{ inputs.webhook-url }}
       with:
         payload: |
-        {
-          "blocks": [
-            {
-              "type": "section",
-              "text": {
-                "type": "mrkdwn",
-                "text": "@channel This is a plain text section block."
-              }
-            },
-            {
-              "type": "divider"
-            },
-            {
-              "type": "section",
-              "fields": [
-                {
-                  "type": "mrkdwn",
-                  "text": "*repository*\n<https://github.com/upsidr/app|upsidr/app>"
-                },
-                {
-                  "type": "mrkdwn",
-                  "text": "*ref*\n$$$ref"
-                }
-              ]
-            },
-            {
-              "type": "section",
-              "fields": [
-                {
-                  "type": "mrkdwn",
-                  "text": "*commit*\n<$${{ github.event.pull_request.html_url || github.event.head_commit.url }}|$${{ github.event.head_commit.message }}>"
-                },
-                {
-                  "type": "mrkdwn",
-                  "text": "*author*\n$${{ github.event.sender.login }}"
-                }
-              ]
-            },
-            {
-              "type": "section",
-              "fields": [
-                {
-                  "type": "mrkdwn",
-                  "text": "*version*\n$${{ inputs.version }}"
-                },
-                {
-                  "type": "mrkdwn",
-                  "text": "*build number*\n$${{ inputs.build-number }}"
-                }
-              ]
-            }
-          ]
-        }
+          {
+             "blocks": [
+               {
+                 "type": "section",
+                 "text": {
+                   "type": "mrkdwn",
+                   "text": "@channel This is a plain text section block."
+                 }
+               },
+               {
+                 "type": "divider"
+               },
+               {
+                 "type": "section",
+                 "fields": [
+                   {
+                     "type": "mrkdwn",
+                     "text": "*repository*\n<https://github.com/upsidr/app|upsidr/app>"
+                   },
+                   {
+                     "type": "mrkdwn",
+                     "text": "*ref*\n$$$ref"
+                   }
+                 ]
+               },
+               {
+                 "type": "section",
+                 "fields": [
+                   {
+                     "type": "mrkdwn",
+                     "text": "*commit*\n<$${{ github.event.pull_request.html_url || github.event.head_commit.url }}|$${{ github.event.head_commit.message }}>"
+                   },
+                   {
+                     "type": "mrkdwn",
+                     "text": "*author*\n$${{ github.event.sender.login }}"
+                   }
+                 ]
+               },
+               {
+                 "type": "section",
+                 "fields": [
+                   {
+                     "type": "mrkdwn",
+                     "text": "*version*\n$${{ inputs.version }}"
+                   },
+                   {
+                     "type": "mrkdwn",
+                     "text": "*build number*\n$${{ inputs.build-number }}"
+                   }
+                 ]
+               }
+             ]
+           }
