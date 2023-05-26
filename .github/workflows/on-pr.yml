@@ -46,9 +46,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Set output
+        id: vars
+        run: |
+          echo "build-number=$${{ env.BUILD_NUMBER }}" >> $GITHUB_OUTPUT
       - name: Notify build info
         uses: ./.github/actions/notify-build
         with:
           version: 1.0.999
-          build-number: ${{ env.BUILD_NUMBER }}
+          build-number: ${{ steps.vars.outputs.build-number}}
           webhook-url: ${{ secrets.SLACK_WEBHOOK_DEV_URL }}
