@@ -15,22 +15,12 @@ runs:
     - name: Dump GitHub Event
       shell: bash
       run: |
-        echo pull_request.html_url: ${{ github.event.pull_request.html_url }}
-        echo ---------------
-        echo '${{ toJson(github.event.pull_request.head.repo) }}'
-        echo merge_commit_message ${{ github.event.pull_request.head.repo.merge_commit_message}}
-        echo merge_commit_title ${{ github.event.pull_request.head.repo.merge_commit_title}}
+        echo '${{ toJson(github.event) }}'
     - id: notify-build-vars
       shell: bash
       run: |
         COMMIT_MESSAGE=$(git log --format=%B -n 1 ${{ github.event.pull_request.head.sha }})
-        echo $COMMIT_MESSAGE
         echo "commit-message=${COMMIT_MESSAGE}" >> $GITHUB_OUTPUT
-    - id: test
-      shell: bash
-      run: |
-        echo ${{ steps.notify-build-vars.outputs.commit-message }}
-        echo hoge ${{ steps.hoge.outputs.commit-message }} foo
     - name: Send notification
       uses: slackapi/slack-github-action@v1.24.0
       env:
@@ -68,7 +58,7 @@ runs:
                  "fields": [
                    {
                      "type": "mrkdwn",
-                     "text": "*commit*\n<${{ github.event.pull_request.html_url || github.event.head_commit.url }}|${{ github.event.head_commit.message }}>"
+                     "text": "*commit*\n<${{ github.event.pull_request.html_url }}|${{ steps.notify-build-vars.outputs.commit-message }}>"
                    },
                    {
                      "type": "mrkdwn",
