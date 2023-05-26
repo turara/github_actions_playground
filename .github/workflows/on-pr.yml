@@ -7,9 +7,13 @@ on:
       - closed
     branches:
       - release
+      - main
 
 env:
   TAG_PREFIX: 'v'
+  # Test
+  GITHUB_RUN_NUMBER: ${{ github.run_number }}
+  BUILD_NUMBER: $(( $GITHUB_RUN_NUMBER - 9 ))
 
 jobs:
   release-note:
@@ -37,3 +41,19 @@ jobs:
           echo $RELEASE_NOTE
         env:
           RELEASE_NOTE: ${{ steps.generateRelease.outputs.releaseNotes }}
+
+  send-slack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set output
+        id: vars
+        run: |
+          BUILD_NUMBER=$((${{ github.run_number }}-9))
+          echo "build-number=${BUILD_NUMBER}" >> $GITHUB_OUTPUT
+      - name: Notify build info
+        uses: ./.github/actions/notify-build
+        with:
+          version: 1.0.999
+          build-number: ${{ steps.vars.outputs.build-number}}
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_DEV_URL }}
