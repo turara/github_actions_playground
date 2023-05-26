@@ -26,6 +26,11 @@ runs:
         COMMIT_MESSAGE=$(git log --format=%B -n 1 ${{ github.event.pull_request.head.sha }})
         echo $COMMIT_MESSAGE
         echo "commit-message=${COMMIT_MESSAGE}" >> $GITHUB_OUTPUT
+    - id: test
+      shell: bash
+      run: |
+        echo ${{ steps.notify-build-vars.outputs.commit-message }}
+        echo hoge ${{ steps.hoge.outputs.commit-message }} foo
     - name: Send notification
       uses: slackapi/slack-github-action@v1.24.0
       env:
