@@ -12,21 +12,30 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Dump GitHub Event
-      shell: bash
-      run: |
-        echo '${{ toJson(github.event) }}'
+    - id: get-merge-commit-message
+      if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+      uses: actions/github-script@v6
+      with:
+        script: |
+          console.log('sha', context.sha);
+          const { data: commit } = await github.rest.repos.getCommit({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: context.sha,
+          });
+          return commit.commit.message;
     - id: notify-build-vars-pull-request-merged
-      if: github.event.pull_request.merged == true
+      if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
       shell: bash
       run: |
         echo notify-build-vars-pull-request-merged
         COMMIT_LINK=${{ github.event.pull_request.html_url }}
-        COMMIT_MESSAGE=$(git log --format=%B -n 1 ${{ github.event.pull_request.merge_commit_sha }})
+        COMMIT_MESSAGE=$${{ steps.get-merge-commit-message.outputs.result }}
         echo "commit-link=${COMMIT_LINK}" >> $GITHUB_OUTPUT
         echo "commit-message=${COMMIT_MESSAGE}" >> $GITHUB_OUTPUT
+
     - id: notify-build-vars-pull-request-not-merged
-      if: github.event.pull_request.merged == false
+      if: github.event_name == 'pull_request' && github.event.pull_request.merged == false
       shell: bash
       run: |
         echo notify-build-vars-pull-request-not-merged
@@ -34,6 +43,7 @@ runs:
         COMMIT_MESSAGE=$(git log --format=%B -n 1 ${{ github.event.pull_request.head.sha }})
         echo "commit-link=${COMMIT_LINK}" >> $GITHUB_OUTPUT
         echo "commit-message=${COMMIT_MESSAGE}" >> $GITHUB_OUTPUT
+
     - name: Send notification
       uses: slackapi/slack-github-action@v1.24.0
       env:
