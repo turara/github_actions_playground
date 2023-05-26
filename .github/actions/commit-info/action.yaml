@@ -33,6 +33,8 @@ runs:
         COMMIT_HASH=${SHA:0:7}
         echo "commit-link=${COMMIT_LINK}" >> $GITHUB_OUTPUT
         echo "commit-message=${COMMIT_MESSAGE} (${COMMIT_HASH})" >> $GITHUB_OUTPUT
+        echo "commit-link=${COMMIT_LINK}"
+        echo "commit-message=${COMMIT_MESSAGE}"
 
     # When action is triggered by workflow dispatch
     - name: triggered_by_workflow_dispatch
