@@ -41,8 +41,10 @@ runs:
         echo notify-build-vars-pull-request-not-merged
         COMMIT_LINK=${{ github.event.pull_request.html_url }}
         COMMIT_MESSAGE=$(git log --format=%B -n 1 ${{ github.event.pull_request.head.sha }})
+        SHA=${{ github.event.pull_request.head.sha }}
+        COMMIT_HASH=${SHA:0:7}
         echo "commit-link=${COMMIT_LINK}" >> $GITHUB_OUTPUT
-        echo "commit-message=${COMMIT_MESSAGE}" >> $GITHUB_OUTPUT
+        echo "commit-message=${COMMIT_MESSAGE} (${COMMIT_HASH})" >> $GITHUB_OUTPUT
 
     - name: Send notification
       uses: slackapi/slack-github-action@v1.24.0
