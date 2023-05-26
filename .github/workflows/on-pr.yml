@@ -50,5 +50,5 @@ jobs:
         uses: ./.github/actions/notify-build
         with:
           version: 1.0.999
-          build-number: $
+          build-number: ${{ env.BUILD_NUMBER }}
           webhook-url: ${{ secrets.SLACK_WEBHOOK_DEV_URL }}
