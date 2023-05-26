@@ -1,0 +1,27 @@
+name: on workflow
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'Name of the person to greet'
+        required: true
+        default: 'World'
+
+jobs:
+  send-slack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Set output
+        id: vars
+        run: |
+          BUILD_NUMBER=$((${{ github.run_number }}-0))
+          echo "build-number=${BUILD_NUMBER}" >> $GITHUB_OUTPUT
+      - name: Notify build info
+        uses: ./.github/actions/notify-build
+        with:
+          version: 1.0.1001
+          build-number: ${{ steps.vars.outputs.build-number}}
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_DEV_URL }}
