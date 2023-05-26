@@ -49,6 +49,7 @@ jobs:
       - name: Set output
         id: vars
         run: |
+          echo "Build number: ${{ env.BUILD_NUMBER }}"
           echo "build-number=$${{ env.BUILD_NUMBER }}" >> $GITHUB_OUTPUT
       - name: Notify build info
         uses: ./.github/actions/notify-build
