@@ -21,10 +21,23 @@ runs:
         COMMIT_MESSAGE=$(git log --format=%B -n 1 ${{ github.event.pull_request.merge_commit_sha }})
         echo "commit-link=${COMMIT_LINK}" >> $GITHUB_OUTPUT
         echo "commit-message=${COMMIT_MESSAGE}" >> $GITHUB_OUTPUT
+    - id: get-merge-commit-message
+      uses: actions/github-script@v6
+      with:
+        script: |
+          console.log('sha', context.sha);
+          const { data: commit } = await github.rest.repos.getCommit({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: context.sha,
+          });
+          return commit.commit.message;
     - id: notify-build-vars-pull-request-not-merged
       if: github.event.pull_request.merged == false
       shell: bash
       run: |
+        echo from api $${{ steps.get-merge-commit-message.outputs.result }}
+        echo ---------------------------------
         echo notify-build-vars-pull-request-not-merged
         COMMIT_LINK=${{ github.event.pull_request.html_url }}
         COMMIT_MESSAGE=$(git log --format=%B -n 1 ${{ github.event.pull_request.head.sha }})
