@@ -21,7 +21,7 @@ runs:
             ref: context.sha,
           });
           return commit.commit.message.split('\n')[0];
-    - name: triggered-by-pull-request-merged
+    - id: triggered-by-pull-request-merged
       if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
       shell: bash
       run: |
@@ -31,7 +31,7 @@ runs:
         echo "commit-message=${COMMIT_MESSAGE}" >> $GITHUB_OUTPUT
 
     # When action is triggered by pull request (not merged)
-    - name: triggered-by-pull-request-not-merged
+    - id: triggered-by-pull-request-not-merged
       if: github.event_name == 'pull_request' && github.event.pull_request.merged == false
       shell: bash
       run: |
@@ -44,7 +44,7 @@ runs:
         cat $GITHUB_OUTPUT
 
     # When action is triggered by workflow dispatch
-    - name: triggered-by-workflow-dispatch
+    - id: triggered-by-workflow-dispatch
       if: github.event_name == 'workflow_dispatch'
       shell: bash
       run: |
@@ -56,9 +56,9 @@ runs:
         echo "commit-message=${COMMIT_MESSAGE} (${COMMIT_HASH})" >> $GITHUB_OUTPUT
 
     - name: Output
+      shell: bash
       run: |
         echo commit-link from not merged is ${{ steps.triggered-by-pull-request-not-merged.outputs.commit-link }}
         echo commit-message from not merged is ${{ steps.triggered-by-pull-request-not-merged.outputs.commit-message }}
         echo commit-link is ${{ steps.triggered-by-pull-request-merged.outputs.commit-link || steps.triggered-by-pull-request-not-merged.outputs.commit-link || steps.triggered-by-workflow-dispatch.outputs.commit-link }}
         echo commit-message is ${{ steps.triggered-by-pull-request-merged.outputs.commit-message || steps.triggered-by-pull-request-not-merged.outputs.commit-message || steps.triggered-by-workflow-dispatch.outputs.commit-message }}
-      shell: bash
