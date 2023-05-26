@@ -16,6 +16,12 @@ runs:
       shell: bash
       run: |
         echo '${{ toJson(github.event) }}'
+        echo ---------------
+        echo pull_request.html_url: ${{ github.event.pull_request.html_url }}
+        echo ---------------
+        echo '${{ toJson(github.event.head_commit) }}'
+        echo head_commit.url: ${{ github.event.head_commit.url }}
+        echo head_commit.message: ${{ github.event.head_commit.message }}
     # - id: notify-build-vars
     #   run: |
     #     COMMIT_MESSAGE=$(git log --format=%B -n 1 ${{ github.event.pull_request.head.sha }})
