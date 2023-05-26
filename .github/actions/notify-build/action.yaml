@@ -40,7 +40,7 @@ runs:
                    },
                    {
                      "type": "mrkdwn",
-                     "text": "*ref*\n$$$ref"
+                     "text": "*ref*\n${{ github.ref }}"
                    }
                  ]
                },
@@ -49,11 +49,11 @@ runs:
                  "fields": [
                    {
                      "type": "mrkdwn",
-                     "text": "*commit*\n<$${{ github.event.pull_request.html_url || github.event.head_commit.url }}|$${{ github.event.head_commit.message }}>"
+                     "text": "*commit*\n<${{ github.event.pull_request.html_url || github.event.head_commit.url }}|${{ github.event.head_commit.message }}>"
                    },
                    {
                      "type": "mrkdwn",
-                     "text": "*author*\n$${{ github.event.sender.login }}"
+                     "text": "*author*\n${{ github.event.sender.login }}"
                    }
                  ]
                },
@@ -62,11 +62,11 @@ runs:
                  "fields": [
                    {
                      "type": "mrkdwn",
-                     "text": "*version*\n$${{ inputs.version }}"
+                     "text": "*version*\n${{ inputs.version }}"
                    },
                    {
                      "type": "mrkdwn",
-                     "text": "*build number*\n$${{ inputs.build-number }}"
+                     "text": "*build number*\n${{ inputs.build-number }}"
                    }
                  ]
                }
