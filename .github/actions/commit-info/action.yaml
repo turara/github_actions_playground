@@ -1,0 +1,47 @@
+runs:
+  using: composite
+  steps:
+    # When action is triggered by pull request (merged)
+    - id: get-merge-commit-message
+      if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const { data: commit } = await github.rest.repos.getCommit({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: context.sha,
+          });
+          return commit.commit.message.split('\n')[0];
+    - name: triggered_by_pull_request_merged
+      if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+      shell: bash
+      run: |
+        COMMIT_LINK=${{ github.event.pull_request.html_url }}
+        COMMIT_MESSAGE=$${{ steps.get-merge-commit-message.outputs.result }}
+        echo "commit-link=${COMMIT_LINK}" >> $GITHUB_OUTPUT
+        echo "commit-message=${COMMIT_MESSAGE}" >> $GITHUB_OUTPUT
+
+    # When action is triggered by pull request (not merged)
+    - name: triggered_by_pull_request_not_merged
+      if: github.event_name == 'pull_request' && github.event.pull_request.merged == false
+      shell: bash
+      run: |
+        COMMIT_LINK=${{ github.event.pull_request.html_url }}
+        COMMIT_MESSAGE=$(git log --format=%B -n 1 ${{ github.event.pull_request.head.sha }})
+        SHA=${{ github.event.pull_request.head.sha }}
+        COMMIT_HASH=${SHA:0:7}
+        echo "commit-link=${COMMIT_LINK}" >> $GITHUB_OUTPUT
+        echo "commit-message=${COMMIT_MESSAGE} (${COMMIT_HASH})" >> $GITHUB_OUTPUT
+
+    # When action is triggered by workflow dispatch
+    - name: triggered_by_workflow_dispatch
+      if: github.event_name == 'workflow_dispatch'
+      shell: bash
+      run: |
+        COMMIT_LINK=${{ github.event.repository.html_url }}/commits/${{ github.sha }}
+        COMMIT_MESSAGE=$(git log --format=%B -n 1 ${{ github.sha }})
+        SHA=${{ github.sha }}
+        COMMIT_HASH=${SHA:0:7}
+        echo "commit-link=${COMMIT_LINK}" >> $GITHUB_OUTPUT
+        echo "commit-message=${COMMIT_MESSAGE} (${COMMIT_HASH})" >> $GITHUB_OUTPUT
