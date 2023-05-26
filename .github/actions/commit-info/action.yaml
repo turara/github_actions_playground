@@ -1,10 +1,10 @@
 outputs:
   commit-link:
     description: 'Commit link'
-    value: ${{ steps.triggered_by_pull_request_merged.outputs.commit-link || steps.triggered_by_pull_request_not_merged.outputs.commit-link || steps.triggered_by_workflow_dispatch.outputs.commit-link }}
+    value: ${{ steps.triggered-by-pull-request-merged.outputs.commit-link || steps.triggered-by-pull-request-not-merged.outputs.commit-link || steps.triggered-by-workflow-dispatch.outputs.commit-link }}
   commit-message:
     description: 'Commit message'
-    value: ${{ steps.triggered_by_pull_request_merged.outputs.commit-message || steps.triggered_by_pull_request_not_merged.outputs.commit-message || steps.triggered_by_workflow_dispatch.outputs.commit-message }}
+    value: ${{ steps.triggered-by-pull-request-merged.outputs.commit-message || steps.triggered-by-pull-request-not-merged.outputs.commit-message || steps.triggered-by-workflow-dispatch.outputs.commit-message }}
 
 runs:
   using: composite
@@ -21,7 +21,7 @@ runs:
             ref: context.sha,
           });
           return commit.commit.message.split('\n')[0];
-    - name: triggered_by_pull_request_merged
+    - name: triggered-by-pull-request-merged
       if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
       shell: bash
       run: |
@@ -31,7 +31,7 @@ runs:
         echo "commit-message=${COMMIT_MESSAGE}" >> $GITHUB_OUTPUT
 
     # When action is triggered by pull request (not merged)
-    - name: triggered_by_pull_request_not_merged
+    - name: triggered-by-pull-request-not-merged
       if: github.event_name == 'pull_request' && github.event.pull_request.merged == false
       shell: bash
       run: |
@@ -43,7 +43,7 @@ runs:
         echo "commit-message=${COMMIT_MESSAGE} (${COMMIT_HASH})" >> $GITHUB_OUTPUT
 
     # When action is triggered by workflow dispatch
-    - name: triggered_by_workflow_dispatch
+    - name: triggered-by-workflow-dispatch
       if: github.event_name == 'workflow_dispatch'
       shell: bash
       run: |

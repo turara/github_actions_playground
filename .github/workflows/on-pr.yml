@@ -52,6 +52,13 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}
+      - id: commit-info
+        uses: ./.github/actions/commit-info
+      - name: Dump Commit Info
+        shell: bash
+        run: |
+          echo link is ${{ steps.commit-info.outputs.commit-link }}
+          echo message is ${{ steps.commit-info.outputs.commit-message }}
       - name: Set output
         id: vars
         run: |
