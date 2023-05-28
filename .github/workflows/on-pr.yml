@@ -64,9 +64,12 @@ jobs:
         run: |
           BUILD_NUMBER=$((${{ github.run_number }}-9))
           echo "build-number=${BUILD_NUMBER}" >> $GITHUB_OUTPUT
+          VERSION=$(grep -oP '(?<=version:)\s*[0-9.]*' pubspec.yaml)
+          echo "version=v${VERSION}" >> $GITHUB_OUTPUT
+          echo "version=v${VERSION}"
       - name: Notify build info
         uses: ./.github/actions/notify-build
         with:
-          version: 1.0.999
+          version: ${{ steps.vars.outputs.version}}
           build-number: ${{ steps.vars.outputs.build-number}}
           webhook-url: ${{ secrets.SLACK_WEBHOOK_DEV_URL }}
