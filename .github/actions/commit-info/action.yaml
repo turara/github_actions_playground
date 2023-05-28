@@ -3,11 +3,11 @@
 
 outputs:
   commit-link:
-    description: 'Commit link: PR url for pull request, commit url for workflow dispatch'
-    value: ${{ steps.triggered-by-pull-request-merged.outputs.commit-link || steps.triggered-by-pull-request-not-merged.outputs.commit-link || steps.triggered-by-workflow-dispatch.outputs.commit-link }}
+    description: 'Commit link: PR url for pull request, commit url for push and workflow dispatch'
+    value: ${{ steps.triggered-by-pull-request-merged.outputs.commit-link || steps.triggered-by-pull-request-not-merged.outputs.commit-link || steps.triggered-by-push-or-workflow-dispatch.outputs.commit-link }}
   commit-message:
     description: 'Commit message'
-    value: ${{ steps.triggered-by-pull-request-merged.outputs.commit-message || steps.triggered-by-pull-request-not-merged.outputs.commit-message || steps.triggered-by-workflow-dispatch.outputs.commit-message }}
+    value: ${{ steps.triggered-by-pull-request-merged.outputs.commit-message || steps.triggered-by-pull-request-not-merged.outputs.commit-message || steps.triggered-by-push-or-workflow-dispatch.outputs.commit-message }}
 
 runs:
   using: composite
@@ -45,9 +45,9 @@ runs:
         echo "commit-link=${COMMIT_LINK}" >> $GITHUB_OUTPUT
         echo "commit-message=${COMMIT_MESSAGE} [${COMMIT_HASH}]" >> $GITHUB_OUTPUT
 
-    # When action is triggered by workflow dispatch
-    - id: triggered-by-workflow-dispatch
-      if: github.event_name == 'workflow_dispatch'
+    # When action is triggered by push or workflow dispatch
+    - id: triggered-by-push-or-workflow-dispatch
+      if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
       shell: bash
       run: |
         COMMIT_LINK=${{ github.event.repository.html_url }}/commits/${{ github.sha }}
