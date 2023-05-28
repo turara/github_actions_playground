@@ -30,8 +30,8 @@ runs:
       run: |
         COMMIT_LINK=${{ github.event.pull_request.html_url }}
         COMMIT_MESSAGE=$${{ steps.get-merge-commit-message.outputs.result }}
-        echo "commit-link=${COMMIT_LINK}" >> $GITHUB_OUTPUT
-        echo "commit-message=${COMMIT_MESSAGE}" >> $GITHUB_OUTPUT
+        echo "commit-link=\"${COMMIT_LINK}\"" >> $GITHUB_OUTPUT
+        echo "commit-message=\"${COMMIT_MESSAGE}\"" >> $GITHUB_OUTPUT
 
     # When action is triggered by pull request (not merged)
     - id: triggered-by-pull-request-not-merged
@@ -42,8 +42,8 @@ runs:
         COMMIT_MESSAGE=$(git log --format=%B -n 1 ${{ github.event.pull_request.head.sha }})
         SHA=${{ github.event.pull_request.head.sha }}
         COMMIT_HASH=${SHA:0:7}
-        echo "commit-link=${COMMIT_LINK}" >> $GITHUB_OUTPUT
-        echo "commit-message=${COMMIT_MESSAGE} [${COMMIT_HASH}]" >> $GITHUB_OUTPUT
+        echo "commit-link=\"${COMMIT_LINK}\"" >> $GITHUB_OUTPUT
+        echo "commit-message=\"${COMMIT_MESSAGE} [${COMMIT_HASH}]\"" >> $GITHUB_OUTPUT
 
     # When action is triggered by push or workflow dispatch
     - id: triggered-by-push-or-workflow-dispatch
@@ -54,5 +54,5 @@ runs:
         COMMIT_MESSAGE=$(git log --format=%B -n 1 ${{ github.sha }})
         SHA=${{ github.sha }}
         COMMIT_HASH=${SHA:0:7}
-        echo "commit-link=${COMMIT_LINK}" >> $GITHUB_OUTPUT
-        echo "commit-message=${COMMIT_MESSAGE} [${COMMIT_HASH}]" >> $GITHUB_OUTPUT
+        echo "commit-link=\"${COMMIT_LINK}\"" >> $GITHUB_OUTPUT
+        echo "commit-message=\"${COMMIT_MESSAGE} [${COMMIT_HASH}]\"" >> $GITHUB_OUTPUT
