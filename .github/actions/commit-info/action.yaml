@@ -13,46 +13,57 @@ runs:
   using: composite
   steps:
     # When action is triggered by pull request (merged)
-    - id: get-merge-commit-message
+    - id: triggered-by-pull-request-merged
       if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
       uses: actions/github-script@v6
+      env:
+        HTML_URL: ${{ github.event.pull_request.html_url }}
       with:
         script: |
+          const { HTML_URL } = process.env;
           const { data: commit } = await github.rest.repos.getCommit({
             owner: context.repo.owner,
             repo: context.repo.repo,
             ref: context.sha,
           });
-          return commit.commit.message.split('\n')[0];
-    - id: triggered-by-pull-request-merged
-      if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
-      shell: bash
-      run: |
-        COMMIT_LINK=${{ github.event.pull_request.html_url }}
-        COMMIT_MESSAGE=$${{ steps.get-merge-commit-message.outputs.result }}
-        echo "commit-link=${COMMIT_LINK}" >> $GITHUB_OUTPUT
-        echo "commit-message=${COMMIT_MESSAGE}" >> $GITHUB_OUTPUT
+          const message = commit.commit.message.split('\n')[0];
+          core.setOutput('commit-link', `${HTML_URL}`);
+          core.setOutput('commit-message', `${message} [${context.sha.slice(0, 7)}]`);
 
     # When action is triggered by pull request (not merged)
     - id: triggered-by-pull-request-not-merged
       if: github.event_name == 'pull_request' && github.event.pull_request.merged == false
-      shell: bash
-      run: |
-        COMMIT_LINK=${{ github.event.pull_request.html_url }}
-        COMMIT_MESSAGE=$(git log --format=%B -n 1 ${{ github.event.pull_request.head.sha }})
-        SHA=${{ github.event.pull_request.head.sha }}
-        COMMIT_HASH=${SHA:0:7}
-        echo "commit-link=${COMMIT_LINK}" >> $GITHUB_OUTPUT
-        echo "commit-message=${COMMIT_MESSAGE} [${COMMIT_HASH}]" >> $GITHUB_OUTPUT
+      uses: actions/github-script@v6
+      env:
+        HTML_URL: ${{ github.event.pull_request.html_url }}
+        SHA: ${{ github.event.pull_request.head.sha }}
+      with:
+        script: |
+          const { HTML_URL, SHA } = process.env;
+          const { data: commit } = await github.rest.repos.getCommit({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: SHA,
+          });
+          const message = commit.commit.message.split('\n')[0];
+          core.setOutput('commit-link', `${HTML_URL}`);
+          core.setOutput('commit-message', `${message} [${SHA.slice(0, 7)}]`);
 
     # When action is triggered by push or workflow dispatch
     - id: triggered-by-push-or-workflow-dispatch
       if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-      shell: bash
-      run: |
-        COMMIT_LINK=${{ github.event.repository.html_url }}/commits/${{ github.sha }}
-        COMMIT_MESSAGE=$(git log --format=%B -n 1 ${{ github.sha }})
-        SHA=${{ github.sha }}
-        COMMIT_HASH=${SHA:0:7}
-        echo "commit-link=${COMMIT_LINK}" >> $GITHUB_OUTPUT
-        echo "commit-message=${COMMIT_MESSAGE} [${COMMIT_HASH}]" >> $GITHUB_OUTPUT
+      uses: actions/github-script@v6
+      env:
+        REPO_URL: ${{ github.event.repository.html_url }}
+        SHA: ${{ github.sha }}
+      with:
+        script: |
+          const { REPO_URL, SHA } = process.env;
+          const { data: commit } = await github.rest.repos.getCommit({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: SHA,
+          });
+          const message = commit.commit.message.split('\n')[0];
+          core.setOutput('commit-link', `${REPO_URL}/commits/${SHA}`);
+          core.setOutput('commit-message', `${message} [${SHA.slice(0, 7)}]`);
