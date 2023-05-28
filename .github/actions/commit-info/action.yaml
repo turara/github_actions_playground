@@ -1,0 +1,58 @@
+# Note that to extract commit info by action triggered by pull request,
+# you need to call actions/checkout@v3 with ref: ${{ github.head_ref }} before this action.
+
+outputs:
+  commit-link:
+    description: 'Commit link: PR url for pull request, commit url for workflow dispatch'
+    value: ${{ steps.triggered-by-pull-request-merged.outputs.commit-link || steps.triggered-by-pull-request-not-merged.outputs.commit-link || steps.triggered-by-workflow-dispatch.outputs.commit-link }}
+  commit-message:
+    description: 'Commit message'
+    value: ${{ steps.triggered-by-pull-request-merged.outputs.commit-message || steps.triggered-by-pull-request-not-merged.outputs.commit-message || steps.triggered-by-workflow-dispatch.outputs.commit-message }}
+
+runs:
+  using: composite
+  steps:
+    # When action is triggered by pull request (merged)
+    - id: get-merge-commit-message
+      if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const { data: commit } = await github.rest.repos.getCommit({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: context.sha,
+          });
+          return commit.commit.message.split('\n')[0];
+    - id: triggered-by-pull-request-merged
+      if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+      shell: bash
+      run: |
+        COMMIT_LINK=${{ github.event.pull_request.html_url }}
+        COMMIT_MESSAGE=$${{ steps.get-merge-commit-message.outputs.result }}
+        echo "commit-link=${COMMIT_LINK}" >> $GITHUB_OUTPUT
+        echo "commit-message=${COMMIT_MESSAGE}" >> $GITHUB_OUTPUT
+
+    # When action is triggered by pull request (not merged)
+    - id: triggered-by-pull-request-not-merged
+      if: github.event_name == 'pull_request' && github.event.pull_request.merged == false
+      shell: bash
+      run: |
+        COMMIT_LINK=${{ github.event.pull_request.html_url }}
+        COMMIT_MESSAGE=$(git log --format=%B -n 1 ${{ github.event.pull_request.head.sha }})
+        SHA=${{ github.event.pull_request.head.sha }}
+        COMMIT_HASH=${SHA:0:7}
+        echo "commit-link=${COMMIT_LINK}" >> $GITHUB_OUTPUT
+        echo "commit-message=${COMMIT_MESSAGE} [${COMMIT_HASH}]" >> $GITHUB_OUTPUT
+
+    # When action is triggered by workflow dispatch
+    - id: triggered-by-workflow-dispatch
+      if: github.event_name == 'workflow_dispatch'
+      shell: bash
+      run: |
+        COMMIT_LINK=${{ github.event.repository.html_url }}/commits/${{ github.sha }}
+        COMMIT_MESSAGE=$(git log --format=%B -n 1 ${{ github.sha }})
+        SHA=${{ github.sha }}
+        COMMIT_HASH=${SHA:0:7}
+        echo "commit-link=${COMMIT_LINK}" >> $GITHUB_OUTPUT
+        echo "commit-message=${COMMIT_MESSAGE} [${COMMIT_HASH}]" >> $GITHUB_OUTPUT

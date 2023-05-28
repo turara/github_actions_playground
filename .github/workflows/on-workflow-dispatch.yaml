@@ -11,6 +11,10 @@ jobs:
   send-slack:
     runs-on: ubuntu-latest
     steps:
+      - name: Dump GitHub
+        shell: bash
+        run: |
+          echo '${{ toJson(github) }}'
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}
@@ -19,9 +23,12 @@ jobs:
         run: |
           BUILD_NUMBER=$((${{ github.run_number }}-0))
           echo "build-number=${BUILD_NUMBER}" >> $GITHUB_OUTPUT
+          VERSION=$(grep -oP '(?<=version:)\s*[0-9.]*' pubspec.yaml)
+          echo "version=v${VERSION}" >> $GITHUB_OUTPUT
+          echo "version=v${VERSION}"
       - name: Notify build info
         uses: ./.github/actions/notify-build
         with:
-          version: 1.0.1001
+          version: ${{ steps.vars.outputs.version}}
           build-number: ${{ steps.vars.outputs.build-number}}
           webhook-url: ${{ secrets.SLACK_WEBHOOK_DEV_URL }}

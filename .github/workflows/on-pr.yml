@@ -52,14 +52,24 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}
+      - id: commit-info
+        uses: ./.github/actions/commit-info
+      - name: Dump Commit Info
+        shell: bash
+        run: |
+          echo link is ${{ steps.commit-info.outputs.commit-link }}
+          echo message is ${{ steps.commit-info.outputs.commit-message }}
       - name: Set output
         id: vars
         run: |
           BUILD_NUMBER=$((${{ github.run_number }}-9))
           echo "build-number=${BUILD_NUMBER}" >> $GITHUB_OUTPUT
+          VERSION=$(grep -oP '(?<=version:)\s*[0-9.]*' pubspec.yaml)
+          echo "version=v${VERSION}" >> $GITHUB_OUTPUT
+          echo "version=v${VERSION}"
       - name: Notify build info
         uses: ./.github/actions/notify-build
         with:
-          version: 1.0.999
+          version: ${{ steps.vars.outputs.version}}
           build-number: ${{ steps.vars.outputs.build-number}}
           webhook-url: ${{ secrets.SLACK_WEBHOOK_DEV_URL }}
