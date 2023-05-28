@@ -1,4 +1,4 @@
-# Note that to extract commit info by action triggered by pull request,
+# Note that to extract commit info by action triggered by merged pull request,
 # you need to call actions/checkout@v3 with ref: ${{ github.head_ref }} before this action.
 
 outputs:
