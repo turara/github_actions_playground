@@ -26,23 +26,19 @@ jobs:
         id: vars
         with:
           script: |
-            console.log(JSON.stringify(context, null, 2))
             const { eventName, payload } = context
-            console.log(`eventName=${eventName}`)
             const { action, pull_request } = payload
             let runBuild = 'true'
+            // When PR is closed and not merged
             if (eventName === 'pull_request' && action === 'closed' && pull_request?.merged === false) {
               runBuild = 'false'
             }
-            console.log(`runBuild=${runBuild}`)
             core.setOutput('run-build', runBuild)
 
   test-job:
     needs: check-event
     runs-on: ubuntu-latest
-    # if run-build is true, run the job
     if: needs.check-event.outputs.run-build == 'true'
-
     steps:
       - name: echo
         run: |
