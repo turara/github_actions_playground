@@ -19,6 +19,8 @@ on:
 jobs:
   check-event:
     runs-on: ubuntu-latest
+    outputs:
+      run-build: ${{ steps.vars.outputs.run-build }}
     steps:
       - uses: actions/github-script@v6
         id: vars
@@ -26,6 +28,29 @@ jobs:
           script: |
             console.log(`event=${JSON.stringify(github.event, null, 2)}`)
             console.log(JSON.stringify(context, null, 2))
+            const { eventName, payload } = context
+            console.log(`eventName=${eventName}`)
+            const { action, pull_request } = payload
+            const { merged } = pull_request
+            console.log(`action=${action}`)
+            console.log(`merged=${merged}`)
+            const runBuild = 'true'
+            if (eventName === 'pull_request' && action === 'closed' && merged === false) {
+              runBuild = 'false'
+            }
+            console.log(`runBuild=${runBuild}`)
+            core.setOutput('run-build', runBuild)
+
+  test-job:
+    needs: check-event
+    runs-on: ubuntu-latest
+    # if run-build is true, run the job
+    if: needs.check-event.outputs.run-build == 'true'
+
+    steps:
+      - name: echo
+        run: |
+          echo run build: ${{ needs.check-event.outputs.run-build }}
 
   # release-note:
   #   if: startsWith(github.head_ref, 'releases/v') && github.event.pull_request.merged == true
