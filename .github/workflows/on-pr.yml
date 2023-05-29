@@ -30,11 +30,8 @@ jobs:
             const { eventName, payload } = context
             console.log(`eventName=${eventName}`)
             const { action, pull_request } = payload
-            const { merged } = pull_request
-            console.log(`action=${action}`)
-            console.log(`merged=${merged}`)
             let runBuild = 'true'
-            if (eventName === 'pull_request' && action === 'closed' && merged === false) {
+            if (eventName === 'pull_request' && action === 'closed' && pull_request?.merged === false) {
               runBuild = 'false'
             }
             console.log(`runBuild=${runBuild}`)
