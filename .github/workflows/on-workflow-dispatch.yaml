@@ -23,7 +23,7 @@ jobs:
         run: |
           BUILD_NUMBER=$((${{ github.run_number }}-0))
           echo "build-number=${BUILD_NUMBER}" >> $GITHUB_OUTPUT
-          VERSION=$(grep -oP '(?<=version:)\s*[0-9.]*' pubspec.yaml)
+          VERSION=$(grep -oP '(?<=version:\s)[0-9.]*' pubspec.yaml)
           echo "version=v${VERSION}" >> $GITHUB_OUTPUT
           echo "version=v${VERSION}"
       - name: Notify build info
