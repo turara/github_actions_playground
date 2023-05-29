@@ -26,7 +26,6 @@ jobs:
         id: vars
         with:
           script: |
-            console.log(`event=${JSON.stringify(github.event, null, 2)}`)
             console.log(JSON.stringify(context, null, 2))
             const { eventName, payload } = context
             console.log(`eventName=${eventName}`)
@@ -34,7 +33,7 @@ jobs:
             const { merged } = pull_request
             console.log(`action=${action}`)
             console.log(`merged=${merged}`)
-            const runBuild = 'true'
+            let runBuild = 'true'
             if (eventName === 'pull_request' && action === 'closed' && merged === false) {
               runBuild = 'false'
             }
