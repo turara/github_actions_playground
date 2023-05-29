@@ -16,60 +16,70 @@ env:
   BUILD_NUMBER: $(( $GITHUB_RUN_NUMBER - 9 ))
 
 jobs:
-  release-note:
-    if: startsWith(github.head_ref, 'releases/v') && github.event.pull_request.merged == true
-    name: release note
+  check-event:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Set output
-        id: vars
-        run: |
-          echo "version=${BRANCH#releases/v}" >> $GITHUB_OUTPUT
-        env:
-          BRANCH: ${{ github.head_ref }}
       - uses: actions/github-script@v6
-        id: generateRelease
-        env:
-          VERSION: ${{ steps.vars.outputs.version }}
+        id: vars
         with:
           script: |
-            const script = require('./octokit_playground/scripts/generateRelease.js')
-            await script({ github, context, core })
-      - name: Test
-        run: |
-          echo $RELEASE_NOTE
-        env:
-          RELEASE_NOTE: ${{ steps.generateRelease.outputs.releaseNotes }}
+            console.log(`event=${JSON.stringify(github.event, null, 2)}`)
+            console.log(JSON.stringify(context, null, 2))
 
-  send-slack:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Dump GitHub
-        shell: bash
-        run: |
-          echo '${{ toJson(github) }}'
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head_ref }}
-      - id: commit-info
-        uses: ./.github/actions/commit-info
-      - name: Dump Commit Info
-        shell: bash
-        run: |
-          echo link is ${{ steps.commit-info.outputs.commit-link }}
-          echo message is ${{ steps.commit-info.outputs.commit-message }}
-      - name: Set output
-        id: vars
-        run: |
-          BUILD_NUMBER=$((${{ github.run_number }}-9))
-          echo "build-number=${BUILD_NUMBER}" >> $GITHUB_OUTPUT
-          VERSION=$(grep -oP '(?<=version:)\s*[0-9.]*' pubspec.yaml)
-          echo "version=v${VERSION}" >> $GITHUB_OUTPUT
-          echo "version=v${VERSION}"
-      - name: Notify build info
-        uses: ./.github/actions/notify-build
-        with:
-          version: ${{ steps.vars.outputs.version}}
-          build-number: ${{ steps.vars.outputs.build-number}}
-          webhook-url: ${{ secrets.SLACK_WEBHOOK_DEV_URL }}
+  # release-note:
+  #   if: startsWith(github.head_ref, 'releases/v') && github.event.pull_request.merged == true
+  #   name: release note
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Set output
+  #       id: vars
+  #       run: |
+  #         echo "version=${BRANCH#releases/v}" >> $GITHUB_OUTPUT
+  #       env:
+  #         BRANCH: ${{ github.head_ref }}
+  #     - uses: actions/github-script@v6
+  #       id: generateRelease
+  #       env:
+  #         VERSION: ${{ steps.vars.outputs.version }}
+  #       with:
+  #         script: |
+  #           const script = require('./octokit_playground/scripts/generateRelease.js')
+  #           await script({ github, context, core })
+  #     - name: Test
+  #       run: |
+  #         echo $RELEASE_NOTE
+  #       env:
+  #         RELEASE_NOTE: ${{ steps.generateRelease.outputs.releaseNotes }}
+
+  # send-slack:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Dump GitHub
+  #       shell: bash
+  #       run: |
+  #         echo '${{ toJson(github) }}'
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         ref: ${{ github.head_ref }}
+  #     - id: commit-info
+  #       uses: ./.github/actions/commit-info
+  #     - name: Dump Commit Info
+  #       shell: bash
+  #       run: |
+  #         echo link is ${{ steps.commit-info.outputs.commit-link }}
+  #         echo message is ${{ steps.commit-info.outputs.commit-message }}
+  #     - name: Set output
+  #       id: vars
+  #       run: |
+  #         BUILD_NUMBER=$((${{ github.run_number }}-9))
+  #         echo "build-number=${BUILD_NUMBER}" >> $GITHUB_OUTPUT
+  #         VERSION=$(grep -oP '(?<=version:)\s*[0-9.]*' pubspec.yaml)
+  #         echo "version=v${VERSION}" >> $GITHUB_OUTPUT
+  #         echo "version=v${VERSION}"
+  #     - name: Notify build info
+  #       uses: ./.github/actions/notify-build
+  #       with:
+  #         version: ${{ steps.vars.outputs.version}}
+  #         build-number: ${{ steps.vars.outputs.build-number}}
+  #         webhook-url: ${{ secrets.SLACK_WEBHOOK_DEV_URL }}
