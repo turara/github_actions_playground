@@ -16,6 +16,8 @@ jobs:
           ref: ${{ github.head_ref }}
       - uses: turara/action-test@main
         id: action-test
+        with:
+          milliseconds: 1000
       - name: Dump output
         shell: bash
         run: |
