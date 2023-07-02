@@ -10,6 +10,8 @@ on:
         default: 2023-05-01
       cycle-unit:
         default: month
+      branches:
+        default: ''
 
 jobs:
   test-action:
@@ -25,6 +27,7 @@ jobs:
           repo: github_actions_playground
           start-date: ${{ inputs.start-date }}
           cycle-unit: ${{ inputs.cycle-unit }}
+          branches: ${{ inputs.branches }}
           gmt: GMT+0900
           verbose: true
         env:
@@ -33,6 +36,7 @@ jobs:
         shell: bash
         run: |
           echo '${{ steps.action-test.outputs.metrics }}'
+          echo '${{ steps.action-test.outputs.metrics.mergedCount }}'
 
   # send-slack:
   #   runs-on: ubuntu-latest
