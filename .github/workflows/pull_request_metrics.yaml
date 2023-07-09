@@ -26,6 +26,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TZ: Asia/Tokyo
+      - name: Dump output
+        shell: bash
+        run: |
+          echo '${{ steps.metrics.outputs.merged-count }}'
       - name: Send notification
         uses: slackapi/slack-github-action@v1.24.0
         env:
