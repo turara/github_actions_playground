@@ -1,0 +1,71 @@
+name: Pull Request Metrics
+on:
+  workflow_dispatch:
+    inputs:
+      start-date:
+        description: 'Start date of cycle: YYYY-MM-DD'
+        default: 2023-06-01
+      cycle-unit:
+        description: 'unit of cycle: week or month'
+        default: month
+
+jobs:
+  metrics:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: turara/typescript-action@feature/pr-metrics
+        id: metrics
+        with:
+          owner: turara
+          repo: github_actions_playground
+          start-date: ${{ inputs.start-date }}
+          cycle-unit: ${{ inputs.cycle-unit }}
+          branches: main,releases/v
+          gmt: GMT+0900
+          verbose: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TZ: Asia/Tokyo
+      - name: Send notification
+        uses: slackapi/slack-github-action@v1.24.0
+        env:
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_DEV_URL }}
+        with:
+          payload: |
+            {
+               "blocks": [
+                 {
+                   "type": "section",
+                   "text": {
+                     "type": "mrkdwn",
+                     "text": "${{ steps.metrics.outputs.merged-count }} pull requests merged!"
+                   }
+                 },
+                 {
+                   "type": "divider"
+                 },
+                 {
+                   "type": "section",
+                   "fields": [
+                     {
+                       "type": "mrkdwn",
+                       "text": "*repository*\n<https://github.com/upsidr/app|upsidr/app>"
+                     }
+                   ]
+                 },
+                 {
+                   "type": "section",
+                   "fields": [
+                     {
+                       "type": "mrkdwn",
+                       "text": "*Start Date*\n${{ inputs.start-date }}"
+                     },
+                     {
+                       "type": "mrkdwn",
+                       "text": "*Merged Pull Requests*\n${{ steps.metrics.outputs.merged-count }}"
+                     }
+                   ]
+                 }
+               ]
+             }
