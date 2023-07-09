@@ -30,6 +30,8 @@ jobs:
         shell: bash
         run: |
           echo '${{ steps.metrics.outputs.merged-count }}'
+          echo '${{ steps.metrics.outputs.count }}'
+          echo '${{ steps.metrics.outputs.json }}'
       - name: Send notification
         uses: slackapi/slack-github-action@v1.24.0
         env:
