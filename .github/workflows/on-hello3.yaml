@@ -1,0 +1,31 @@
+name: on hello3
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'Name of the person to greet'
+        required: true
+        default: 'World'
+
+jobs:
+  hello3-1:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dump output
+        shell: bash
+        run: |
+          echo 'Hello ${{ inputs.name }}'
+  hello3-2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dump output
+        shell: bash
+        run: |
+          echo 'Hello ${{ inputs.name }} 2'
+  hello3-3:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dump output
+        shell: bash
+        run: |
+          echo 'Hello ${{ inputs.name }} 3'
