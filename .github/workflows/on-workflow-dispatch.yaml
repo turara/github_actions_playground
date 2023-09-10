@@ -12,31 +12,43 @@ on:
         default: month
       branches:
         default: ''
+env:
+  GITHUB_RUN_NUMBER: ${{ github.run_number }}
+  BUILD_NUMBER1: $(( $GITHUB_RUN_NUMBER * 2 ))
+  BUILD_NUMBER2: $(( $GITHUB_RUN_NUMBER * 2 + 1 ))
 
 jobs:
-  test-action:
+  echo-env:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head_ref }}
-      - uses: turara/typescript-action@feature/pr-metrics
-        id: action-test
-        with:
-          owner: turara
-          repo: github_actions_playground
-          start-date: ${{ inputs.start-date }}
-          cycle-unit: ${{ inputs.cycle-unit }}
-          branches: ${{ inputs.branches }}
-          gmt: GMT+0900
-          verbose: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Dump output
-        shell: bash
+      - shell: bash
         run: |
-          echo '${{ steps.action-test.outputs.metrics }}'
-          echo '${{ steps.action-test.outputs.metrics.mergedCount }}'
+          echo "GITHUB_RUN_NUMBER=${GITHUB_RUN_NUMBER}"
+          echo "BUILD_NUMBER1=${BUILD_NUMBER1}"
+          echo "BUILD_NUMBER2=${BUILD_NUMBER2}"
+  # test-action:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         ref: ${{ github.head_ref }}
+  #     - uses: turara/typescript-action@feature/pr-metrics
+  #       id: action-test
+  #       with:
+  #         owner: turara
+  #         repo: github_actions_playground
+  #         start-date: ${{ inputs.start-date }}
+  #         cycle-unit: ${{ inputs.cycle-unit }}
+  #         branches: ${{ inputs.branches }}
+  #         gmt: GMT+0900
+  #         verbose: true
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Dump output
+  #       shell: bash
+  #       run: |
+  #         echo '${{ steps.action-test.outputs.metrics }}'
+  #         echo '${{ steps.action-test.outputs.metrics.mergedCount }}'
 
   # send-slack:
   #   runs-on: ubuntu-latest
